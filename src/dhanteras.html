@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Unique Dhanteras Wishes</title><link rel="stylesheet" href="fonts.css"></head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="common.js"></script>
+<script>
+const DUR = 15;
+seed(13112026);
+const KX = W / 2, KY = 1330; // kalash pot centre
+
+// ---- fireworks: gold only, kept to the top of the frame ----
+[[1.2, 280, 300, 'willow', 45], [3.0, 800, 330, 'peony', 42], [4.3, 420, 230, 'ring', 38],
+ [6.2, 200, 280, 'peony', 45], [8.0, 880, 340, 'willow', 45], [10.3, 200, 300, 'willow', 45],
+ [11.3, 880, 300, 'peony', 40], [12.4, 540, 200, 'ring', 45], [13.1, 260, 420, 'peony', 30],
+ [13.6, 820, 420, 'willow', 45]].forEach(a => Fireworks.add(...a));
+
+// ---- background ----
+const bokeh = Array.from({ length: 34 }, () => ({ x: R(0, W), y: R(0, H), r: R(14, 46), v: R(8, 30), p: R(0, 6.28) }));
+function drawBg(t) {
+  const g = ctx.createRadialGradient(W / 2, 1150, 60, W / 2, 1100, 1300);
+  g.addColorStop(0, '#8e1424'); g.addColorStop(.45, '#4a0814'); g.addColorStop(1, '#14020a');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // faint rotating golden mandala
+  ctx.save(); ctx.translate(KX, KY - 60); ctx.rotate(t * .08); ctx.strokeStyle = 'rgba(255,200,90,.13)'; ctx.lineWidth = 3;
+  for (let ring = 0; ring < 4; ring++) {
+    const r = 300 + ring * 150, n = 12 + ring * 6;
+    for (let i = 0; i < n; i++) { ctx.save(); ctx.rotate(i / n * 6.283); ctx.beginPath(); ctx.moveTo(0, -r + 70); ctx.quadraticCurveTo(38, -r, 0, -r - 60); ctx.quadraticCurveTo(-38, -r, 0, -r + 70); ctx.stroke(); ctx.restore(); }
+    ctx.beginPath(); ctx.arc(0, 0, r - 80, 0, 6.283); ctx.stroke();
+  }
+  ctx.restore();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const b of bokeh) {
+    const y = ((b.y - t * b.v) % H + H) % H, a = .08 + .07 * Math.sin(t * 1.5 + b.p);
+    glow(b.x + Math.sin(t * .7 + b.p) * 20, y, b.r, `rgba(255,190,80,${a})`);
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  Fireworks.drawFlashes(t, .3);
+}
+
+// ---- hanging brass bells ----
+function drawBell(x, len, s, t, ph) {
+  const ang = 0.16 * Math.sin(t * 2.2 + ph);
+  ctx.save(); ctx.translate(x, 0); ctx.rotate(ang);
+  for (let y = 0; y < len; y += 16) { ctx.fillStyle = (y / 16) % 2 ? '#ffcc33' : '#d01a2a'; ctx.fillRect(-4, y, 8, 16); }
+  ctx.translate(0, len); ctx.scale(s, s);
+  ctx.globalCompositeOperation = 'lighter'; glow(0, 60, 150, 'rgba(255,170,60,.22)'); ctx.globalCompositeOperation = 'source-over';
+  // clapper
+  ctx.fillStyle = '#8a5a12'; ctx.fillRect(-3, 80, 6, 46); ctx.beginPath(); ctx.arc(Math.sin(t * 2.2 + ph - .8) * 8, 130, 13, 0, 6.28); ctx.fillStyle = '#c8901c'; ctx.fill();
+  const g = ctx.createLinearGradient(-70, 0, 70, 0);
+  g.addColorStop(0, '#7a4a08'); g.addColorStop(.3, '#ffe08a'); g.addColorStop(.55, '#d9a02a'); g.addColorStop(1, '#6a3c06');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(14, 0); ctx.bezierCurveTo(40, 6, 44, 60, 52, 96); ctx.quadraticCurveTo(62, 112, 74, 116);
+  ctx.lineTo(-74, 116); ctx.quadraticCurveTo(-62, 112, -52, 96); ctx.bezierCurveTo(-44, 60, -40, 6, -14, 0); ctx.fill();
+  ctx.fillStyle = '#ffe9a8'; ctx.fillRect(-60, 100, 120, 5);
+  ctx.beginPath(); ctx.arc(0, -6, 12, 0, 6.28); ctx.fillStyle = '#d9a02a'; ctx.fill();
+  ctx.restore();
+}
+
+// ---- kalash ----
+function leaf(len, wid, rot, x, y) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+  const g = ctx.createLinearGradient(-wid, 0, wid, 0); g.addColorStop(0, '#1f6b1f'); g.addColorStop(.5, '#4fa83a'); g.addColorStop(1, '#1c5a18');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(wid, -len * .45, 0, -len); ctx.quadraticCurveTo(-wid, -len * .45, 0, 0); ctx.fill();
+  ctx.strokeStyle = 'rgba(200,255,160,.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -len * .92); ctx.stroke();
+  ctx.restore();
+}
+function lotus(x, y, w, t) {
+  ctx.save(); ctx.translate(x, y);
+  const petal = (rot, len, wid, c1, c2) => {
+    ctx.save(); ctx.rotate(rot);
+    const g = ctx.createLinearGradient(0, 0, 0, -len); g.addColorStop(0, c2); g.addColorStop(1, c1);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(wid, -len * .55, 0, -len); ctx.quadraticCurveTo(-wid, -len * .55, 0, 0); ctx.fill();
+    ctx.restore();
+  };
+  for (let i = -4; i <= 4; i++) petal(i * .3, w * .55, w * .14, '#ffd0e0', '#e0457a');
+  for (let i = -3; i <= 3; i++) petal(i * .38, w * .42, w * .15, '#fff0f5', '#ff5c93');
+  ctx.restore();
+}
+function drawKalash(cx, cy, s, t) {
+  ctx.save(); ctx.translate(cx, cy); ctx.scale(s, s);
+  ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 200, 260, 40, 0, 0, 6.28); ctx.fill();
+  lotus(0, 215, 520, t);
+  // leaves behind the coconut
+  for (let i = -3; i <= 3; i++) leaf(160, 34, i * .32, i * 14, -205);
+  // coconut wrapped in red cloth
+  ctx.fillStyle = '#6b3a18'; ctx.beginPath(); ctx.ellipse(0, -282, 64, 80, 0, 0, 6.28); ctx.fill();
+  ctx.strokeStyle = '#a0693a'; ctx.lineWidth = 3; for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(i * 8, -360); ctx.quadraticCurveTo(i * 22, -330, i * 16, -300); ctx.stroke(); }
+  ctx.fillStyle = '#c8102e'; ctx.beginPath(); ctx.moveTo(-70, -300); ctx.quadraticCurveTo(0, -330, 70, -300); ctx.quadraticCurveTo(80, -230, 0, -212); ctx.quadraticCurveTo(-80, -230, -70, -300); ctx.fill();
+  ctx.strokeStyle = '#ffcc33'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(-70, -300); ctx.quadraticCurveTo(0, -330, 70, -300); ctx.stroke();
+  ctx.fillStyle = '#ffd84a'; for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.arc(i * 22, -262 + Math.abs(i) * 4, 4, 0, 6.28); ctx.fill(); }
+  // pot
+  const g = ctx.createLinearGradient(-180, 0, 180, 0);
+  g.addColorStop(0, '#7a4606'); g.addColorStop(.28, '#ffe58f'); g.addColorStop(.45, '#f2b631'); g.addColorStop(.8, '#a66a0c'); g.addColorStop(1, '#5e3404');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.moveTo(-68, -175); ctx.bezierCurveTo(-210, -140, -220, 120, -95, 168); ctx.lineTo(95, 168); ctx.bezierCurveTo(220, 120, 210, -140, 68, -175); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = g; ctx.fillRect(-68, -205, 136, 34);
+  // mauli thread on neck
+  for (let i = 0; i < 4; i++) { ctx.fillStyle = i % 2 ? '#ffcc33' : '#d01a2a'; ctx.fillRect(-72, -196 + i * 7, 144, 7); }
+  ctx.beginPath(); ctx.ellipse(0, -207, 104, 20, 0, 0, 6.28); ctx.fillStyle = '#ffd860'; ctx.fill(); ctx.strokeStyle = '#9a620c'; ctx.lineWidth = 3; ctx.stroke();
+  // decorative bands
+  ctx.strokeStyle = 'rgba(120,60,0,.7)'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.ellipse(0, -95, 158, 22, 0, 0, Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(0, 110, 150, 24, 0, 0, Math.PI); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,240,180,.9)'; for (let i = -6; i <= 6; i++) { ctx.beginPath(); ctx.arc(i * 24, -78 + Math.abs(i) * Math.abs(i) * .55, 4, 0, 6.28); ctx.fill(); }
+  swastik(0, 18, 46, '#c8102e', 13);
+  // highlight
+  const hg = ctx.createRadialGradient(-80, -60, 0, -80, -60, 120); hg.addColorStop(0, 'rgba(255,255,230,.5)'); hg.addColorStop(1, 'rgba(255,255,230,0)');
+  ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(-80, -60, 120, 0, 6.28); ctx.fill();
+  ctx.restore();
+}
+
+// ---- coins ----
+const coins = [];
+function spawnCoin(x, y, vx, vy, g, r) { coins.push({ x, y, vx, vy, g, r, ph: R(0, 6.28), sp: R(4, 9), sway: R(0, 6.28) }); }
+function stepCoins(t) {
+  // steady rain, heavier at the start
+  const rate = t < 4.8 ? 0.32 : t < 9.6 ? 0.22 : 0.18;
+  let n = rate; while (n > 0) { if (rnd() < n) spawnCoin(R(30, W - 30), -60, R(-20, 20), R(240, 380), 100, R(22, 36)); n -= 1; }
+  // fountain of coins out of the kalash
+  if (t > 2.3 && t < 3.3) if (rnd() < .9) spawnCoin(KX + R(-30, 30), KY - 230, R(-420, 420), R(-1000, -650), 1500, R(26, 38));
+  for (let i = coins.length - 1; i >= 0; i--) {
+    const c = coins[i]; c.vy += c.g * DT; c.x += (c.vx + Math.sin(t * 2 + c.sway) * 30) * DT; c.y += c.vy * DT; c.ph += c.sp * DT;
+    if (c.y > H + 80) coins.splice(i, 1);
+  }
+}
+function drawCoin(c) {
+  const sx = Math.cos(c.ph), w = Math.max(.08, Math.abs(sx)) * c.r;
+  ctx.save(); ctx.translate(c.x, c.y);
+  ctx.fillStyle = '#9a6208'; ctx.beginPath(); ctx.ellipse(sx > 0 ? -3 : 3, 0, w, c.r, 0, 0, 6.28); ctx.fill();
+  const g = ctx.createLinearGradient(-w, -c.r, w, c.r); g.addColorStop(0, '#fff3b0'); g.addColorStop(.5, '#f5c13a'); g.addColorStop(1, '#c98a12');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 0, w, c.r, 0, 0, 6.28); ctx.fill();
+  if (w > c.r * .35) {
+    ctx.strokeStyle = 'rgba(150,90,0,.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, w * .78, c.r * .78, 0, 0, 6.28); ctx.stroke();
+    ctx.scale(w / c.r, 1); ctx.fillStyle = '#a8680a'; ctx.font = `${c.r * .95}px Yatra`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('श्री', 0, c.r * .06);
+  }
+  ctx.restore();
+}
+
+// ---- Lakshmi footprints ----
+function foot(x, y, s, left, a) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(left ? -s : s, s); ctx.globalAlpha = a;
+  ctx.fillStyle = '#d4142a';
+  ctx.beginPath(); ctx.moveTo(0, -40); ctx.bezierCurveTo(30, -42, 32, -6, 22, 14); ctx.bezierCurveTo(16, 28, 20, 44, 0, 50);
+  ctx.bezierCurveTo(-18, 50, -20, 34, -16, 18); ctx.bezierCurveTo(-24, -6, -26, -38, 0, -40); ctx.fill();
+  const toes = [[-14, -52, 9], [0, -56, 7], [11, -54, 6], [20, -50, 5], [27, -43, 4.5]];
+  for (const [tx, ty, tr] of toes) { ctx.beginPath(); ctx.arc(tx, ty, tr, 0, 6.28); ctx.fill(); }
+  ctx.strokeStyle = '#fff3e0'; ctx.lineWidth = 3; ctx.setLineDash([1, 7]); ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0, -48); ctx.bezierCurveTo(38, -50, 40, -6, 30, 16); ctx.bezierCurveTo(24, 34, 26, 56, 0, 58);
+  ctx.bezierCurveTo(-26, 58, -28, 36, -24, 18); ctx.bezierCurveTo(-32, -6, -34, -46, 0, -48); ctx.stroke();
+  ctx.restore();
+}
+const steps = Array.from({ length: 6 }, (_, i) => ({ t: 5.2 + i * .42, x: KX + (i % 2 ? 46 : -46), y: 1880 - i * 52, left: i % 2 === 0, s: .85 - i * .05 }));
+
+// ---- frame ----
+const dust = makeDust(60, 'rgba(255,210,120,A)');
+function renderFrame(i) {
+  const t = i / FPS;
+  Fireworks.step(t); stepCoins(t);
+  drawBg(t);
+  ctx.drawImage(Fireworks.canvas, 0, 0);
+  drawBell(90, 150, .75, t, 0); drawBell(250, 250, .6, t, 1.3);
+
+  // kalash rises in with light rays
+  const kin = easeOutBack(prog(t, 0.5, 1.7));
+  const ky = KY + (1 - kin) * 700;
+  const kA = 1 - prog(t, 9.5, 10.3);
+  ctx.save(); ctx.globalAlpha = kA;
+  lightRays(KX, ky - 120, 900, 18, t * .15, 'rgba(255,200,90,.55)', .6 * prog(t, .8, 2));
+  ctx.globalCompositeOperation = 'lighter'; glow(KX, ky - 80, 520, 'rgba(255,160,40,.35)'); ctx.globalCompositeOperation = 'source-over';
+  drawKalash(KX, ky, .95, t);
+  ctx.restore();
+
+  // footprints walking up to the kalash
+  for (const s of steps) { const a = easeOutCubic(prog(t, s.t, s.t + .35)); if (a > 0) foot(s.x, s.y, s.s * (1.4 - .4 * a), s.left, a * (1 - prog(t, 9.4, 9.8))); }
+
+  // side diyas
+  [[110, 1790], [300, 1830], [780, 1830], [970, 1790]].forEach(([x, y], k) => drawDiya(x, y, 1.05, t, k * 2.1));
+  for (const c of coins) drawCoin(c);
+
+  // scene 1 titles
+  const s1 = easeOutCubic(prog(t, .9, 1.9)) * (1 - prog(t, 4.6, 5.2)), lift = -easeInCubic(prog(t, 4.6, 5.2)) * 140;
+  goldText('शुभ धनत्रयोदशी', W / 2, 470 + lift, '$px Yatra', 104, s1, prog(t, 1.5, 2.6), { stroke: 8 });
+  const sc = lerp(.6, 1, easeOutBack(prog(t, 1.1, 2.0)));
+  ctx.save(); ctx.translate(W / 2, 700 + lift); ctx.scale(sc, sc); ctx.translate(-W / 2, -700);
+  goldText('Happy', W / 2, 650, '$px Vibes', 170, s1, prog(t, 2.0, 3.0));
+  goldText('DHANTERAS', W / 2, 830, '700 $px Cinzel', 138, s1, prog(t, 2.1, 3.2), { stroke: 9 });
+  ctx.restore();
+
+  // scene 2 message
+  const s2 = easeOutCubic(prog(t, 5.2, 6.0)) * (1 - prog(t, 9.3, 9.8));
+  goldText('धनत्रयोदशीच्या हार्दिक शुभेच्छा!', W / 2, 470, '$px Yatra', 76, s2, prog(t, 6.0, 7.2), { stroke: 7 });
+  const m = easeOutCubic(prog(t, 5.9, 6.7)) * (1 - prog(t, 9.3, 9.8));
+  plainText('May Lord Dhanvantari bless you', W / 2, 575, '500 40px Pop', '#fff1dc', m);
+  plainText('with good health, and Goddess Lakshmi', W / 2, 632, '500 40px Pop', '#fff1dc', m);
+  plainText('with wealth & prosperity', W / 2, 689, '500 40px Pop', '#fff1dc', m);
+  goldText('HEALTH  •  WEALTH  •  PROSPERITY', W / 2, 790, '700 $px Pop', 36, easeOutCubic(prog(t, 6.8, 7.5)) * (1 - prog(t, 9.3, 9.8)), prog(t, 7.4, 8.4), { blur: 20 });
+
+  // sparkles around the kalash
+  for (let k = 0; k < 10; k++) { const ph = k * 1.9, tw = Math.sin(t * 3 + ph * 2.3); if (tw > .55 && t > 2) sparkle(KX + Math.cos(ph) * 260, ky - 150 + Math.sin(ph * 1.3) * 200, 30, t, (tw - .55) * 2.2); }
+
+  cornerLogo(t, easeOutCubic(prog(t, .8, 1.5)) * (1 - prog(t, 9.5, 9.9)));
+  endCard(t, 9.7, [{ text: 'Wishing you a healthy & prosperous Dhanteras', font: '500 38px Pop', color: '#ffe9c4', gap: 86 }, ...CONTACT]);
+  drawDust(dust, t);
+  fadeEdges(t, DUR);
+}
+window.ready = (async () => {
+  await loadFonts(); await prepLogos();
+  schedule.events = { bells: [0.6, 5.0], title: 1.0, shimmer: [1.5, 2.0, 6.0, 7.4], fountain: [2.3, 3.3], steps: steps.map(s => s.t), card: 9.7, cardShine: 10.6, kind: 'dhanteras' };
+  return true;
+})();
+window.renderFrame = renderFrame; window.getSchedule = () => schedule; window.FRAMES = FPS * DUR;
+</script>
+</body>
+</html>

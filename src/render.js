@@ -5,7 +5,9 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const out = process.argv[2] || path.join(__dirname, '..', 'video', 'silent.mp4');
+// usage: node render.js <page.html> <out.mp4> [--preview 10,20]
+const html = process.argv[2] || 'diwali.html';
+const out = process.argv[3] || path.join(__dirname, '..', 'video', 'silent.mp4');
 const previewIdx = process.argv.indexOf('--preview');
 const preview = previewIdx > 0 ? process.argv[previewIdx + 1].split(',').map(Number) : null;
 
@@ -14,7 +16,7 @@ const preview = previewIdx > 0 ? process.argv[previewIdx + 1].split(',').map(Num
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
   page.on('console', m => console.log('[page]', m.text()));
   page.on('pageerror', e => { console.error('[pageerror]', e); process.exit(1); });
-  await page.goto('file://' + path.join(__dirname, 'diwali.html'));
+  await page.goto('file://' + path.join(__dirname, html));
   await page.evaluate(() => window.ready);
   const frames = await page.evaluate(() => window.FRAMES);
 
@@ -31,12 +33,12 @@ const preview = previewIdx > 0 ? process.argv[previewIdx + 1].split(',').map(Num
     const data = await page.evaluate(([i, want]) => { window.renderFrame(i); return want ? document.getElementById('c').toDataURL('image/png') : null; }, [i, want]);
     if (!want) continue;
     const buf = Buffer.from(data.split(',')[1], 'base64');
-    if (preview) fs.writeFileSync(path.join(process.env.PREVIEW_DIR || '.', `frame_${String(i).padStart(3, '0')}.png`), buf);
+    if (preview) fs.writeFileSync(path.join(process.env.PREVIEW_DIR || '.', `${html.replace('.html','')}_${String(i).padStart(3, '0')}.png`), buf);
     else if (!ff.stdin.write(buf)) await new Promise(r => ff.stdin.once('drain', r));
     if (i % 60 === 0) console.log('frame', i, ((Date.now() - t0) / 1000).toFixed(1) + 's');
   }
   const sched = await page.evaluate(() => window.getSchedule());
-  fs.writeFileSync(path.join(__dirname, 'schedule.json'), JSON.stringify(sched, null, 1));
+  fs.writeFileSync(path.join(__dirname, html.replace('.html', '.schedule.json')), JSON.stringify(sched, null, 1));
   await browser.close();
   if (ff) { ff.stdin.end(); await new Promise(r => ff.on('close', r)); }
   console.log('done', out);

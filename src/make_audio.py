@@ -11,7 +11,7 @@ DUR = 15.0
 N = int(SR * DUR)
 rng = np.random.default_rng(1020)
 HERE = os.path.dirname(os.path.abspath(__file__))
-sched = json.load(open(os.path.join(HERE, "schedule.json")))
+sched = json.load(open(os.path.join(HERE, "diwali.schedule.json")))
 
 L = np.zeros(N); Rr = np.zeros(N)
 

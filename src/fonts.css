@@ -1,0 +1,11 @@
+@font-face { font-family: Vibes; src: url(fonts/great-vibes-latin-400-normal.woff2); }
+@font-face { font-family: Cinzel; src: url(fonts/cinzel-decorative-latin-700-normal.woff2); }
+@font-face { font-family: Pop; font-weight: 500; src: url(fonts/poppins-latin-500-normal.woff2); }
+@font-face { font-family: Pop; font-weight: 600; src: url(fonts/poppins-latin-600-normal.woff2); }
+@font-face { font-family: Pop; font-weight: 700; src: url(fonts/poppins-latin-700-normal.woff2); }
+@font-face { font-family: Yatra; src: url(fonts/yatra-one-devanagari-400-normal.woff2);
+             unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FF; }
+@font-face { font-family: Yatra; src: url(fonts/yatra-one-latin-400-normal.woff2);
+             unicode-range: U+0000-00FF, U+2000-206F; }
+html, body { margin: 0; background: #000; }
+canvas { display: block; }
