@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600"><title>Unique Biological &amp; Chemicals</title>
+  <defs>
+    <radialGradient id="embg" cx="38%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#7C8E34"/>
+      <stop offset="1" stop-color="#46531A"/>
+    </radialGradient>
+    <clipPath id="flaskclip"><path d="M263.6,154.4 L263.6,238.4 L171.2,412.0 Q154.4,451.2 193.6,462.4 L406.4,462.4 Q445.6,451.2 428.8,412.0 L336.4,238.4 L336.4,154.4 Z"/></clipPath>
+  </defs>
+  <circle cx="300" cy="300" r="280" fill="url(#embg)"/>
+  <circle cx="300" cy="300" r="252.0" fill="none" stroke="#A9BC4A" stroke-opacity=".55" stroke-width="6.2"/>
+  <path d="M202.0,356.0 Q249.6,333.6 300.0,356.0 T398.0,356.0 L434.4,423.2 Q451.2,473.6 406.4,473.6 L193.6,473.6 Q148.8,473.6 165.6,423.2 Z" fill="#CFE07A" clip-path="url(#flaskclip)"/>
+  <circle cx="266.4" cy="400.8" r="14.0" fill="#fff" fill-opacity=".85"/>
+  <circle cx="328.0" cy="378.4" r="9.5" fill="#fff" fill-opacity=".85"/>
+  <circle cx="305.6" cy="305.6" r="8.4" fill="#fff" fill-opacity=".7"/>
+  <circle cx="286.0" cy="260.8" r="6.2" fill="#fff" fill-opacity=".6"/>
+  <path d="M263.6,154.4 L263.6,238.4 L171.2,412.0 Q154.4,451.2 193.6,462.4 L406.4,462.4 Q445.6,451.2 428.8,412.0 L336.4,238.4 L336.4,154.4 Z" fill="none" stroke="#fff" stroke-width="19.6" stroke-linejoin="round"/>
+  <path d="M244.0,137.6 L356.0,137.6 L356.0,160.0 L244.0,160.0 Z" fill="#fff" stroke="#fff" stroke-width="5.6" stroke-linejoin="round"/>
+  <path d="M300.0,160.0 C300.0,126.4 294.4,104.0 288.8,81.6" fill="none" stroke="#CFE07A" stroke-width="11.2" stroke-linecap="round"/>
+  <path d="M294.4,115.2 C328.0,59.2 395.2,53.6 423.2,76.0 C395.2,126.4 333.6,143.2 294.4,115.2 Z" fill="#CFE07A"/>
+  <path d="M288.8,87.2 C260.8,42.4 204.8,36.8 182.4,59.2 C210.4,98.4 255.2,109.6 288.8,87.2 Z" fill="#E6F0B0"/>
+  <path d="M300.0,115.2 Q356.0,92.8 412.0,76.0" fill="none" stroke="#5E6E25" stroke-width="5.0" stroke-linecap="round"/></svg>
